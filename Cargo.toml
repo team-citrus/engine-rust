@@ -1,0 +1,6 @@
+[package]
+name = "Citrus Engine Rust Bindings"
+version = "0.1.0"
+edition = "2022"
+
+# TODO: Add more keys
