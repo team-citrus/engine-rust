@@ -1,5 +1,6 @@
 [package]
-name = "Citrus Engine Rust Bindings"
+name = "engine"
+description = "The Rust bindings for the Citrus Engine, originally written in C++."
 version = "0.1.0"
 edition = "2022"
 
