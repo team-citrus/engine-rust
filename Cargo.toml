@@ -1,7 +1,12 @@
 [package]
 name = "engine"
 description = "The Rust bindings for the Citrus Engine, originally written in C++."
-version = "0.1.0"
-edition = "2022"
+readme = "README.md"
+license = "LGPL-2.1-only"
+keywords = ["gamedev", "api", "game", "bindings"]
+categories = ["api-bindings", "game-engines", "game-development"]
+authors = ["Team Citrus"]
+version = "0.0.1"
+
 
 # TODO: Add more keys
