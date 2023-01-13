@@ -8,5 +8,10 @@ categories = ["api-bindings", "game-engines", "game-development"]
 authors = ["Team Citrus"]
 version = "0.0.1"
 
+[dependencies]
+cxx = "1.0"
+
+[build-dependencies]
+cxx-build = "1.0"
 
 # TODO: Add more keys
