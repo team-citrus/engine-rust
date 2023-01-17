@@ -1,4 +1,4 @@
-using std::mem;
+using std::{mem, iter, ops, option};
 
 #[cxx::bridge]
 mod engine
@@ -9,14 +9,15 @@ mod engine
 		// Supposed to be placed on top of the original engine source code
 		include!("include/core/mem.hpp");
 
-		unsafe fn memalloc<T>(size: usize, flags: u16) -> *mut T;
-		unsafe fn memrealloc<T>(ptr: *mut T, size: usize, flags: u16) -> *mut T;
-		unsafe fn memfree<T>(ptr: *mut T);
+		unsafe fn memalloc(size: usize, flags: u16) -> *mut c_void;
+		unsafe fn memrealloc(ptr: *mut c_void, size: usize, flags: u16) -> *mut c_void;
+		unsafe fn memfree(ptr: *mut c_void);
 	}
 
 	extern "Rust"
 	{
-		pub struct memBox<T>
+		// MemBox<T> is an implementation of Box<T>, but for the Citrus Engine box allocator
+		pub struct MemBox<T>
 		{
 			ptr: *mut T;
 			size: usize;
@@ -24,23 +25,23 @@ mod engine
 			curr: u64;
 		}
 
-		impl<T> memBox<T>
+		impl<T> MemBox<T>
 		{
-			pub fn alloc<'a, T>(c: u64) -> &'a memBox<T>
+			pub fn new<t>(c: u64) -> MemBox<T>
 			{
-				let s: usize = size_of<T>();
+				let s: usize = size_of<t>();
 				unsafe
 				{
-					memBox<T> { ptr = memalloc<T>(count * size, 0), size = s, count = c, curr = 0 }
+					MemBox<t> { ptr = memalloc(count * size, 0) as *mut t, size = s, count = c, curr = 0 }
 				}
 			}
 			
-			pub fn realloc(&mut self, c: u64)
+			pub fn resize(&mut self, c: u64)
 			{
 				self.count = c;
 				unsafe
 				{
-					self.ptr = memrealloc<T>(self.ptr, c * self.size, 0);
+					self.ptr = memrealloc(self.ptr as *mut c_void, c * self.size, 0) as *mut T;
 				}
 			}
 
@@ -50,7 +51,7 @@ mod engine
 			} 
 		}
 
-		impl<T> Drop for memBox<T>
+		impl<T> Drop for MemBox<T>
 		{
 			pub fn drop(&mut self)
 			{
@@ -61,19 +62,78 @@ mod engine
 			}
 		}
 
-		impl Index<usize> for memBox<T>
+		impl<T> Index<usize> for MemBox<T>
 		{
-			pub fn index<'a>(&'a mut self, i: usize) -> &'a T
+			type Output = T;
+			
+			pub fn index(&mut self, index: usize) -> &self::Output
 			{
 				unsafe
 				{
-					let ret: &'a T = *self.ptr.offset(i % self.count);
+					let ret: &T = *self.ptr.offset(i);
 				}
 
 				return ret;
 			}
 		}
 
-		// TODO: impl<T> Iterator for memBox<T>
+		impl<T> Iterator for MemBox<T>
+		{
+			type Item = T;
+			
+			pub fn next(&mut self) -> Option<self::Item>
+			{
+				if self.cursor == self.count
+				{
+					return Option<self::Item> = None;
+				}
+				
+				self.curr += 1;
+				Option<self::Item> = Some(self[cursor - 1])
+			}
+		}
+		
+		// Vec<T> but for the Citrus Engine's box allocator
+		pub struct Vector<T>
+		{
+			// Suprise! It's additional functionality for MemBox<T>
+			content: MemBox<T>;
+		}
+		
+		impl<T> Iterator for Vector<T>
+		{
+			type Item = T;
+			
+			pub fn next(&mut self) -> Option<self::Item>
+			{
+				self.content.next()
+			}
+		}
+		
+		impl<T> Index<usize> for Vector<T>
+		{
+			type Output = T;
+			
+			pub fn index(&mut self, index: usize) -> &self::Output
+			{
+				self.content[index]
+			}
+		}
+		
+		impl<T> for Vector<T>
+		{
+			pub fn new<t>()
+			{
+				Vector<t> { content = MemBox::new<t>() }
+			}
+			
+			pub fn push(&mut self, item: T) -> &T
+			{
+				self.content.resize(self.content.getCount() + 1);
+				self.content[self.content.getCount() - 1)] = item	
+			}
+		
+			// TODO: Add more functions
+		}
 	}
 }
