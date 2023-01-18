@@ -27,7 +27,7 @@ mod engine
 
 		impl<T> MemBox<T>
 		{
-			pub fn new<t>(c: u64) -> MemBox<T>
+			pub fn new<t>(c: u64) -> MemBox<t>
 			{
 				let s: usize = size_of<t>();
 				unsafe
