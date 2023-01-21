@@ -7,6 +7,8 @@ keywords = ["gamedev", "api", "game", "bindings"]
 categories = ["api-bindings", "game-engines", "game-development"]
 authors = ["Team Citrus"]
 version = "0.0.1"
+repository = "https://github.com/team-citrus/engine-rust/"
+include = ["/src/rs"]
 
 [dependencies]
 cxx = "1.0"
