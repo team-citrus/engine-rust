@@ -1,4 +1,12 @@
-using std::{mem::*, iter::*, ops::*, option::*};
+/*
+*	name: src/core/mem.rs
+*	origin: Citrus Engine
+*	purpose: Provide the main engine functions
+*	author: https://github.com/ComradeYellowCitrusFruit
+*	license: LGPL-3.0-only
+*/
+
+use std::{mem::*, iter::*, ops::*, option::*};
 
 #[cxx::bridge]
 mod ffi
@@ -15,21 +23,29 @@ mod ffi
 // MemBox<T> is an implementation of Box<T>, but for the Citrus Engine box allocator
 pub struct MemBox<T>
 {
-	ptr: *mut T;
-	size: usize;
-	count: u64;
-	curr: u64;
+	ptr: *mut T,
+	size: usize,
+	count: u64,
+	curr: u64,
 }
 
 impl<T> MemBox<T>
 {
-	pub fn new<t>(c: u64) -> MemBox<t>
+	pub fn new<T>(c: u64) -> MemBox<T>
 	{
-		let s: usize = size_of<t>();
+		let s: usize = size_of<T>();
+		let b: MemBox<T>;
 		unsafe
 		{
-			MemBox<t> { ptr = ffi::memalloc(count * size, 0) as *mut t, size = s, count = c, curr = 0 }
-		}
+			b = MemBox<T>
+			{
+				ptr: ffi::memalloc(count * size, 0) as *mut T,
+				size: s,
+				count: c, 
+				curr: 0,
+			};
+		};
+		b
 	}
 	
 	pub fn resize(&mut self, c: u64)
@@ -41,7 +57,7 @@ impl<T> MemBox<T>
 		}
 	}
 
-	pub fn getCount(&self) -> u64
+	pub fn get_count(&self) -> u64
 	{
 		self.count
 	} 
@@ -49,7 +65,7 @@ impl<T> MemBox<T>
 
 impl<T> Drop for MemBox<T>
 {
-	pub fn drop(&mut self)
+	fn drop(&mut self)
 	{
 		unsafe
 		{
@@ -62,7 +78,7 @@ impl<T> Index<usize> for MemBox<T>
 {
 	type Output = T;
 	
-	pub fn index(&mut self, index: usize) -> &self::Output
+	fn index(&mut self, index: usize) -> &self::Output
 	{
 		unsafe
 		{
@@ -73,19 +89,20 @@ impl<T> Index<usize> for MemBox<T>
 	}
 }
 
+// TODO: Redo this
 impl<T> Iterator for MemBox<T>
 {
 	type Item = T;
 	
-	pub fn next(&mut self) -> Option<self::Item>
+	fn next(&mut self) -> Option<self::Item>
 	{
 		if self.cursor == self.count
 		{
-			return Option<self::Item> = None;
+			return None;
 		}
 		
 		self.curr += 1;
-		Option<self::Item> = Some(self[cursor - 1])
+		Some(self[cursor - 1])
 	}
 }
 
@@ -93,14 +110,14 @@ impl<T> Iterator for MemBox<T>
 pub struct Vector<T>
 {
 	// Suprise! It's additional functionality for MemBox<T>
-	content: MemBox<T>;
+	content: MemBox<T>,
 }
 
 impl<T> Iterator for Vector<T>
 {
 	type Item = T;
 	
-	pub fn next(&mut self) -> Option<self::Item>
+	fn next(&mut self) -> Option<self::Item>
 	{
 		self.content.next()
 	}
@@ -110,23 +127,24 @@ impl<T> Index<usize> for Vector<T>
 {
 	type Output = T;
 	
-	pub fn index(&mut self, index: usize) -> &self::Output
+	fn index(&mut self, index: usize) -> &self::Output
 	{
 		self.content[index]
 	}
 }
 
-impl<T> for Vector<T>
+impl<T> Vector<T>
 {
-	pub fn new<t>()
+	pub fn new<T>()
 	{
-		Vector<t> { content = MemBox::new<t>() }
+		Vector<T> { content = MemBox::new<T>() }
 	}
 	
 	pub fn push(&mut self, item: T) -> &T
 	{
-		self.content.resize(self.content.getCount() + 1);
-		self.content[self.content.getCount() - 1)] = item	
+		self.content.resize(self.content.get_count() + 1);
+		self.content[self.content.get_count() - 1] = item;
+		self.content[self.content.get_count() - 1]
 	}
 
 	// TODO: Add more functions

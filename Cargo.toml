@@ -1,5 +1,5 @@
 [package]
-name = "engine"
+name = "citrus_engine"
 description = "The Rust bindings for the Citrus Engine, originally written in C++."
 readme = "README.md"
 license = "LGPL-2.1-only"
@@ -16,4 +16,18 @@ cxx = "1.0"
 [build-dependencies]
 cxx-build = "1.0"
 
-# TODO: Add more keys
+[profile.dev]
+opt-level = 0
+overflow-checks = false
+lto = true
+debug = true
+
+[profile.release]
+opt-level = 2
+overflow-checks = false
+lto = true
+
+[lib]
+name = "engine"
+path = "src/lib.rs"
+crate-type = ["lib"] 
