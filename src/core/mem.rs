@@ -23,8 +23,8 @@ pub mod ffi
 // MemBox<T> is an implementation of Box<T>, but for the Citrus Engine box allocator
 pub struct MemBox<T>
 {
-	pub(in crate::vector) ptr: *mut T,
-	pub(in crate::vector) count: u64,
+	pub(in crate::vec) ptr: *mut T,
+	pub(in crate::vec) count: u64,
 }
 
 impl<T> MemBox<T>

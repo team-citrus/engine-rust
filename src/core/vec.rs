@@ -17,6 +17,19 @@ pub struct Vector<T>
 	content: MemBox<T>,
 }
 
+#[macro_export]
+macro_rules! memvec
+{
+	( $( $i:expr ),* ) =>
+	{
+		let mut vec = Vector::new();
+		$(
+			vec.push($i);
+		)
+		vec
+	};
+}
+
 impl<T> Index<usize> for Vector<T>
 {
 	type Output = T;
