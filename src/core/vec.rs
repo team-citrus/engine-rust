@@ -18,7 +18,7 @@ pub struct Vector<T>
 }
 
 #[macro_export]
-macro_rules! memvec
+macro_rules! vector
 {
 	( $( $i:expr ),* ) =>
 	{
