@@ -6,7 +6,7 @@
 *	license: LGPL-3.0-only
 */
 
-use std::{mem::*, iter::*, ops::*, option::*};
+use std::{mem::*, iter::*, ops::*, option::*, slice::*};
 
 #[cxx::bridge]
 mod ffi
@@ -54,6 +54,16 @@ impl<T> MemBox<T>
 	{
 		self.count
 	} 
+
+	pub fn as_slice(&'a self) -> &'a [T]
+	{
+		unsafe { from_raw_parts(self.ptr, self.count) }
+	}
+
+	pub fn as_mut_slice(&'a self) -> &'a [T]
+	{
+		unsafe { from_raw_parts_mut(self.ptr, self.count) }
+	}
 }
 
 impl<T> Drop for MemBox<T>
