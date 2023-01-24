@@ -9,7 +9,7 @@
 use std::{mem::*, iter::*, ops::*, option::*, slice::*};
 
 #[cxx::bridge]
-mod ffi
+pub mod ffi
 {
 	#[namespace = "engine"]
 	extern "C++"
@@ -23,19 +23,20 @@ mod ffi
 // MemBox<T> is an implementation of Box<T>, but for the Citrus Engine box allocator
 pub struct MemBox<T>
 {
-	ptr: *mut T,
-	count: u64,
+	pub(in crate::vector) ptr: *mut T,
+	pub(in crate::vector) count: u64,
 }
 
 impl<T> MemBox<T>
 {
+
 	pub fn new<T>(c: u64) -> MemBox<T>
 	{
 		unsafe
 		{
 			MemBox<T>
 			{
-				ptr: ffi::memalloc(c * size_of<T>(), 0) as *mut T,
+				ptr: ffi::memalloc(c * size_of<T>(), 0),
 				count: c,
 			}
 		}
@@ -60,7 +61,7 @@ impl<T> MemBox<T>
 		unsafe { from_raw_parts(self.ptr, self.count) }
 	}
 
-	pub fn as_mut_slice(&'a self) -> &'a [T]
+	pub fn as_mut_slice(&'a mut self) -> &'a [T]
 	{
 		unsafe { from_raw_parts_mut(self.ptr, self.count) }
 	}
@@ -81,11 +82,11 @@ impl<T> Index<usize> for MemBox<T>
 {
 	type Output = T;
 	
-	fn index(&mut self, index: usize) -> &self::Output
+	fn index(&mut self, index: usize) -> &mut self::Output
 	{
 		unsafe
 		{
-			let ret: &T = *self.ptr.offset(i);
+			let ret: &mut T = *(self.ptr.offset(i) as *mut T);
 		}
 
 		return ret;
