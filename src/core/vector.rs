@@ -69,6 +69,26 @@ impl<T> Vector<T>
 		self.content[index]
 	}
 
+	pub fn get_last(&self) -> &T
+	{
+		self.content.ptr[self.content.count - 1]
+	}
+
+	pub fn get_mut_last(&mut self) -> &mut T
+	{
+		self.content.ptr[self.content.count - 1]
+	}
+
+	pub fn get_first(&self) -> &T
+	{
+		self.content.ptr[self.content.count - 1]
+	}
+
+	pub fn get_mut_first(&mut self) -> &mut T
+	{
+		self.content.ptr[self.content.count - 1]
+	}
+
 	pub fn as_slice(&'a self) -> &'a [T]
 	{
 		self.content.as_slice()
