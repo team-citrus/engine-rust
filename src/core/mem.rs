@@ -24,36 +24,29 @@ mod ffi
 pub struct MemBox<T>
 {
 	ptr: *mut T,
-	size: usize,
 	count: u64,
-	curr: u64,
 }
 
 impl<T> MemBox<T>
 {
 	pub fn new<T>(c: u64) -> MemBox<T>
 	{
-		let s: usize = size_of<T>();
-		let b: MemBox<T>;
 		unsafe
 		{
-			b = MemBox<T>
+			MemBox<T>
 			{
-				ptr: ffi::memalloc(count * size, 0) as *mut T,
-				size: s,
-				count: c, 
-				curr: 0,
-			};
-		};
-		b
+				ptr: ffi::memalloc(c * size_of<T>(), 0) as *mut T,
+				count: c,
+			}
+		}
 	}
 	
-	pub fn resize(&mut self, c: u64)
+	pub fn resize(&mut self, c: u64) -> ()
 	{
 		self.count = c;
 		unsafe
 		{
-			self.ptr = ffi::memrealloc(self.ptr as *mut c_void, c * self.size, 0) as *mut T;
+			self.ptr = ffi::memrealloc(self.ptr as *mut c_void, c * size_of<T>(), 0) as *mut T;
 		}
 	}
 
@@ -89,19 +82,15 @@ impl<T> Index<usize> for MemBox<T>
 	}
 }
 
-// TODO: Redo this
-impl<T> Iterator for MemBox<T>
+impl<T> Clone for MemBox<T>
 {
-	type Item = T;
-	
-	fn next(&mut self) -> Option<self::Item>
+	fn clone(&self) -> MemBox<T>
 	{
-		if self.cursor == self.count
+		let membox: MemBox<T> = MemBox::new(self.count);
+		for i in ..self.count
 		{
-			return None;
+			membox[i] = self[i];
 		}
-		
-		self.curr += 1;
-		Some(self[cursor - 1])
+		membox
 	}
 }
