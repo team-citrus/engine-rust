@@ -6,7 +6,6 @@
 *	license: LGPL-3.0-only
 */
 
-
 use std::{mem::*, iter::*, ops::*, option::*};
 use crate::mem::{MemBox, ffi::*};
 
