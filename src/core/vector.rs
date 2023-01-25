@@ -110,4 +110,14 @@ impl<T> Vector<T>
 	{
 		self.content.as_mut_slice()
 	}
+
+	pub fn into_raw_parts(&mut self) -> (*mut T, u64)
+	{
+		self.content.into_raw_parts()
+	}
+
+	pub fn from_raw_parts(raw: *mut T, c: u64) -> Vector<T>
+	{
+		Vector { content: MemBox::from_raw_parts(raw, c) }
+	}
 }
