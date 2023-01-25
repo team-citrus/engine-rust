@@ -65,6 +65,23 @@ impl<T> MemBox<T>
 	{
 		unsafe { from_raw_parts_mut(self.ptr, self.count) }
 	}
+
+	pub fn into_raw_parts(&mut self) -> (*mut T, u64)
+	{
+		(self.ptr, self.count)
+	}
+
+	pub fn from_raw_parts(raw: *mut T, c: u64) -> MemBox<T>
+	{
+		unsafe
+		{
+			MemBox<T>
+			{
+				ptr: raw,
+				count: c,
+			}
+		}
+	}
 }
 
 impl<T> Drop for MemBox<T>
