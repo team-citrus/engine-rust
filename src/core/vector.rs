@@ -43,7 +43,7 @@ impl<T> Vector<T>
 {
 	pub fn new<T>()
 	{
-		Vector<T> { content = MemBox::new<T>() }
+		Vector<T> { content: MemBox::new<T>() }
 	}
 	
 	pub fn push(&mut self, item: T) -> &mut T
