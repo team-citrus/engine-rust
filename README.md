@@ -10,3 +10,19 @@ In providing these Rust bindings, we hope to bring in more use for the Citrus En
 - All requirements of the Citrus Engine
 - rustc
 - cargo
+
+## TODOs
+
+### High priority
+
+- [ ] Port **core** API
+  - [ ] Create Rust component system compatible with the C++ system **<ins>(Highest priority)</ins>**
+    - [ ] Optimize to minimize latency
+    - [ ] Optimize to minimize code complexity
+- [ ] Port **physics** API
+- [ ] Port **graphics** API
+- [ ] Replacements for standard library objects
+
+### Medium priority
+
+- [ ] Port `simd.h` and `simd.hpp` from C++
