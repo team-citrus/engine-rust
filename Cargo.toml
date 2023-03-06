@@ -12,6 +12,7 @@ include = ["/src/rs"]
 
 [dependencies]
 cxx = "1.0"
+glm = "0.2.3"
 
 [build-dependencies]
 cxx-build = "1.0"
