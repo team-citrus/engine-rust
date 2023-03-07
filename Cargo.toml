@@ -2,13 +2,14 @@
 name = "citrus_engine"
 description = "The Rust bindings for the Citrus Engine, originally written in C++."
 readme = "README.md"
-license = "LGPL-2.1-only"
+license = "LGPL-3.0-only"
 keywords = ["gamedev", "api", "game", "bindings"]
 categories = ["api-bindings", "game-engines", "game-development"]
 authors = ["Team Citrus"]
 version = "0.0.1"
+edition = '2018'
 repository = "https://github.com/team-citrus/engine-rust/"
-include = ["/src/rs"]
+include = ["/src"]
 
 [dependencies]
 cxx = "1.0"
@@ -19,15 +20,29 @@ impls = "1"
 cxx-build = "1.0"
 
 [profile.dev]
-opt-level = 0
+opt-level = 1 # Why the hell isn't there a -Og style option?
 overflow-checks = false
 lto = true
 debug = true
+incremental = true
+panic = "unwind"
 
-[profile.release]
+[profile.quick]
 opt-level = 2
 overflow-checks = false
+lto = "thin"
+debug = false
+incremental = true
+panic = "abort"
+
+[profile.release]
+opt-level = 3
+overflow-checks = false
 lto = true
+debug = false
+strip = "debuginfo"
+panic = "abort"
+codegen-units = 6 # 1 for core, 1 for physics, 1 for graphics, 1 for sound, 1 for internals, and 1 misc
 
 [lib]
 name = "engine"
