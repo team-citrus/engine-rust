@@ -20,7 +20,7 @@ pub mod ffi
 	}
 }
 
-// MemBox<T> is an implementation of Box<T>, but for the Citrus Engine box allocator
+// MemBox<T> is an implementation of Box<T>, but for the Citrus Engine block allocator
 pub struct MemBox<T>
 {
 	pub(in crate::vec) ptr: *mut T,
@@ -29,7 +29,7 @@ pub struct MemBox<T>
 
 impl<T> MemBox<T>
 {
-
+	#[inline(always)]
 	pub fn new<T>(c: u64) -> MemBox<T>
 	{
 		unsafe
@@ -42,6 +42,7 @@ impl<T> MemBox<T>
 		}
 	}
 	
+	#[inline(always)]
 	pub fn resize(&mut self, c: u64) -> ()
 	{
 		self.count = c;
@@ -51,26 +52,31 @@ impl<T> MemBox<T>
 		}
 	}
 
-	pub fn get_count(&self) -> u64
+	#[inline(always)]
+	pub fn len(&self) -> u64
 	{
 		self.count
 	} 
 
+	#[inline(always)]
 	pub fn as_slice(&'a self) -> &'a [T]
 	{
 		unsafe { from_raw_parts(self.ptr, self.count) }
 	}
 
+	#[inline(always)]
 	pub fn as_mut_slice(&'a mut self) -> &'a [T]
 	{
 		unsafe { from_raw_parts_mut(self.ptr, self.count) }
 	}
 
+	#[inline(always)]
 	pub fn into_raw_parts(&mut self) -> (*mut T, u64)
 	{
 		(self.ptr, self.count)
 	}
 
+	#[inline(always)]
 	pub fn from_raw_parts(raw: *mut T, c: u64) -> MemBox<T>
 	{
 		unsafe
@@ -86,6 +92,7 @@ impl<T> MemBox<T>
 
 impl<T> Drop for MemBox<T>
 {
+	#[inline(always)]
 	fn drop(&mut self)
 	{
 		unsafe
@@ -99,6 +106,7 @@ impl<T> Index<usize> for MemBox<T>
 {
 	type Output = T;
 	
+	#[inline(always)]
 	fn index(&mut self, index: usize) -> &mut self::Output
 	{
 		unsafe
@@ -112,6 +120,7 @@ impl<T> Index<usize> for MemBox<T>
 
 impl<T> Clone for MemBox<T>
 {
+	#[inline(always)]
 	fn clone(&self) -> MemBox<T>
 	{
 		let membox: MemBox<T> = MemBox::new(self.count);
