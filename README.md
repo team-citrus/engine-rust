@@ -16,12 +16,19 @@ In providing these Rust bindings, we hope to bring in more use for the Citrus En
 ### High priority
 
 - [ ] Port **core** API
-  - [ ] Create Rust component system compatible with the C++ system **<ins>(Highest priority)</ins>**
-    - [ ] Optimize to minimize latency
-    - [ ] Optimize to minimize code complexity
+  - [ ] Replacements for standard library objects
+    - [x] `MemBox<T>`
+    - [x] `Vector<T>`
+      - [ ] Add capacity
+    - [ ] `Pair<A, B>`
+    - [ ] `Map<A, B>`
+    - [ ] `HashMap<K, T>`
+  - [x] Create Rust component system compatible with the C++ system **<ins>(Highest priority)</ins>**
+    - [x] Optimize to minimize latency
+    - [x] Optimize to minimize code complexity
+    - [ ] Find some way to make Rust and C++ see into each other
 - [ ] Port **physics** API
 - [ ] Port **graphics** API
-- [ ] Replacements for standard library objects
 
 ### Medium priority
 
