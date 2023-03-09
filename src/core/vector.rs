@@ -17,18 +17,18 @@ pub struct Vector<T>
 	count: usize,
 }
 
-// TODO: the capacity optimization
 #[macro_export]
-macro_rules! vector
+macro_rules! memvec
 {
-	( $( $i:expr ),* ) =>
+	() => { Vector::new() }
+	($elem:expr; $n:expr) =>
 	{
-		let mut vec = Vector::new();
-		$(
-			vec.push($i);
-		)
-		vec
-	};
+		Vector::from_elem($elem, $n)
+	}
+	( $($x:expr),+ $(,)? ) =>
+	{
+		Vector::from_box(MemBox::from_slice(&[$($x),+]))
+	}
 }
 
 impl<T> Index<usize> for Vector<T>
@@ -58,6 +58,17 @@ impl<T> Vector<T>
 	pub fn new<T>() -> Vector<T>
 	{
 		Vector { content: MemBox::new(8), count: 0 }
+	}
+
+	#[inline(always)]
+	pub fn from_elem<T>(elem: T, n: usize) -> Vector<T>
+	{
+		let vec = Vector { content: MemBox::new<T>(n + 8), count: n };
+		for i in ..n
+		{
+			*vec[i] = elem;
+		}
+		vec
 	}
 	
 	#[inline(always)]
@@ -197,6 +208,16 @@ impl<T> Vector<T>
 	pub fn iter_mut(&mut self) -> slice::IterMut<T>
 	{
 		self.as_mut_slice().iter_mut()
+	}
+
+	#[inline(always)]
+	pub fn from_box<T>(membox: MemBox<T>) -> Vector<T>
+	{
+		Vector
+		{
+			content: membox.clone(),
+			count: membox.count,
+		}
 	}
 }
 

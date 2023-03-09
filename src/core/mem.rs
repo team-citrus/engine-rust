@@ -43,6 +43,17 @@ impl<T> MemBox<T>
 	}
 	
 	#[inline(always)]
+	pub fn from_slice<T>(slice: &[T]) -> MemBox<T>
+	{
+		let ret = MemBox::new<T>(slice.len());
+		for i in ..slice.len()
+		{
+			*ret[i] = slice[i];
+		}
+		ret
+	}
+
+	#[inline(always)]
 	pub fn resize(&mut self, c: usize) -> ()
 	{
 		self.count = c;
@@ -147,7 +158,7 @@ impl<T> Clone for MemBox<T>
 impl<T> IntoIterator for MemBox<T>
 {
 	#[inline(always)]
-	pub fn iter(&self) -> slice::Iter<T>
+	fn iter(&self) -> slice::Iter<T>
 	{
 		self.as_slice().iter()
 	}
