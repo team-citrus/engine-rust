@@ -24,13 +24,13 @@ pub mod ffi
 pub struct MemBox<T>
 {
 	pub(in crate::vec) ptr: *mut T,
-	pub(in crate::vec) count: u64,
+	pub(in crate::vec) count: usize,
 }
 
 impl<T> MemBox<T>
 {
 	#[inline(always)]
-	pub fn new<T>(c: u64) -> MemBox<T>
+	pub fn new<T>(c: usize) -> MemBox<T>
 	{
 		unsafe
 		{
@@ -43,7 +43,7 @@ impl<T> MemBox<T>
 	}
 	
 	#[inline(always)]
-	pub fn resize(&mut self, c: u64) -> ()
+	pub fn resize(&mut self, c: usize) -> ()
 	{
 		self.count = c;
 		unsafe
@@ -88,6 +88,18 @@ impl<T> MemBox<T>
 			}
 		}
 	}
+
+	#[inline(always)]
+	pub fn iter(&self) -> slice::Iter<T>
+	{
+		self.as_slice().iter()
+	}
+
+	#[inline(always)]
+	pub fn iter_mut(&mut self) -> slice::IterMut<T>
+	{
+		self.as_mut_slice().iter_mut()
+	}
 }
 
 impl<T> Drop for MemBox<T>
@@ -126,8 +138,17 @@ impl<T> Clone for MemBox<T>
 		let membox: MemBox<T> = MemBox::new(self.count);
 		for i in ..self.count
 		{
-			membox[i] = self[i];
+			*membox[i] = *self[i];
 		}
 		membox
+	}
+}
+
+impl<T> IntoIterator for MemBox<T>
+{
+	#[inline(always)]
+	pub fn iter(&self) -> slice::Iter<T>
+	{
+		self.as_slice().iter()
 	}
 }

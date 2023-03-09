@@ -6,7 +6,7 @@
 *	license: LGPL-3.0-only
 */
 
-use std::{mem::*, iter::*, ops::*, option::*};
+use std::{mem::*, iter::*, ops::*, option::*, slice::*};
 use crate::mem::{MemBox, ffi};
 
 // Vec<T> but for the Citrus Engine's box allocator
@@ -14,8 +14,10 @@ pub struct Vector<T>
 {
 	// Suprise! It's additional functionality for MemBox<T>
 	content: MemBox<T>,
+	count: usize,
 }
 
+// TODO: the capacity optimization
 #[macro_export]
 macro_rules! vector
 {
@@ -36,6 +38,16 @@ impl<T> Index<usize> for Vector<T>
 	#[inline(always)]
 	fn index(&self, index: usize) -> &self::Output
 	{
+		// The C++ version looks cleaner imo
+		index = if index >= self.count
+		{
+			self.count - 1
+		}
+		else
+		{
+			index
+		};
+
 		self.content[index]
 	}
 }
@@ -43,24 +55,35 @@ impl<T> Index<usize> for Vector<T>
 impl<T> Vector<T>
 {
 	#[inline(always)]
-	pub fn new<T>()
+	pub fn new<T>() -> Vector<T>
 	{
-		Vector<T> { content: MemBox::new<T>() }
+		Vector { content: MemBox::new(8), count: 0 }
 	}
 	
 	#[inline(always)]
 	pub fn push(&mut self, item: T) -> &mut T
 	{
-		self.content.resize(self.content.get_count() + 1);
-		*self.content[self.content.get_count() - 1] = item;
-		self.content[self.content.get_count() - 1]
+		self.count += 1;
+		if self.content.len() >= self.count - 2
+		{
+			self.content.resize(self.content.len() + 8);
+		}
+
+		*self.content[self.count - 1] = item;
+		self.content[self.count - 1]
 	}
 
 	#[inline(always)]
 	pub fn pop(&mut self) -> T
 	{
-		let ret = *self.content[self.content.get_count() - 1];
-		self.content.resize(self.content.get_count() - 1);
+		let ret = *self.content[self.count - 1];
+
+		self.count -= 1;
+		if self.content.len() - 8 >= self.count
+		{
+			self.content.resize(self.content.len() - 8);
+		}
+
 		ret
 	}
 
@@ -68,21 +91,32 @@ impl<T> Vector<T>
 	pub fn rm(&mut self, index: usize) -> ()
 	{
 		self.content.count -= 1;
-		for i in (index..=self.content.count).rev()
+
+		for i in ((index + 1)..self.count).rev()
 		{
 			*self.content[i - 1] = *self.content[i];
 		}
-		self.content.ptr = memrealloc(self.content.ptr as *mut c_void, self.content.count * size_of<T>(), 0) as *mut T;
+
+		if self.content.len() - 8 >= self.count
+		{
+			self.content.resize(self.content.len() - 8);
+		}
 	}
 
 	#[inline(always)]
 	pub fn insert(&mut self, index: usize, obj: T) -> &mut T
 	{
-		self.content.resize(self.content.len() + 1);
-		for i in index..(self.content.count - 1)
+		self.count += 1;
+		if self.content.len() >= self.count - 2
+		{
+			self.content.resize(self.content.len() + 8);
+		}
+
+		for i in index..(self.count - 1)
 		{
 			*self.content[i + 1] = *self.content[i];
 		}
+
 		*self.content[index] = obj;
 		self.content[index]
 	}
@@ -90,54 +124,102 @@ impl<T> Vector<T>
 	#[inline(always)]
 	pub fn get_last(&self) -> &T
 	{
-		self.content.ptr[self.content.count - 1]
+		self.content.ptr[self.count - 1]
 	}
 
 	#[inline(always)]
 	pub fn get_mut_last(&mut self) -> &mut T
 	{
-		self.content.ptr[self.content.count - 1]
+		self.content.ptr[self.count - 1]
 	}
 
 	#[inline(always)]
 	pub fn get_first(&self) -> &T
 	{
-		self.content.ptr[self.content.count - 1]
+		self.content.ptr[self.count - 1]
 	}
 
 	#[inline(always)]
 	pub fn get_mut_first(&mut self) -> &mut T
 	{
-		self.content.ptr[self.content.count - 1]
+		self.content.ptr[self.count - 1]
 	}
 
 	#[inline(always)]
 	pub fn as_slice(&'a self) -> &'a [T]
 	{
-		self.content.as_slice()
+		unsafe
+		{
+			slice::from_raw_parts(self.content.ptr, self.count)
+		}
 	}
 
 	#[inline(always)]
 	pub fn as_mut_slice(&'a mut self) -> &'a mut [T]
 	{
-		self.content.as_mut_slice()
+		unsafe
+		{
+			slice::from_raw_parts_mut(self.content.ptr, self.count)
+		}
 	}
 
 	#[inline(always)]
-	pub fn into_raw_parts(&mut self) -> (*mut T, u64)
+	pub fn into_raw_parts(&mut self) -> (*mut T, usize, usize)
 	{
-		self.content.into_raw_parts()
+		(self.content.ptr, self.count, self.content)
 	}
 
 	#[inline(always)]
-	pub fn from_raw_parts(raw: *mut T, c: u64) -> Vector<T>
+	pub fn from_raw_parts(raw: *mut T, c: usize) -> Vector<T>
 	{
-		Vector { content: MemBox::from_raw_parts(raw, c) }
+		Vector { content: MemBox::from_raw_parts(raw, c), count: c + 8 }
 	}
 
 	#[inline(always)]
 	pub fn len(&self) -> usize
 	{
-		self.content.len()
+		self.count
+	}
+
+	#[inline(always)]
+	pub fn shrink_to_capacity(&mut self) -> ()
+	{
+		self.content.resize(self.count)
+	}
+
+	#[inline(always)]
+	pub fn iter(&self) -> slice::Iter<T>
+	{
+		self.as_slice().iter()
+	}
+
+	#[inline(always)]
+	pub fn iter_mut(&mut self) -> slice::IterMut<T>
+	{
+		self.as_mut_slice().iter_mut()
+	}
+}
+
+impl<T> Clone for Vector<T>
+{
+	#[inline(always)]
+	fn clone(&self) -> Vector<T>
+	{
+		Vector
+		{
+			content: self.content.clone(),
+			count: self.count,
+		}
+	}
+}
+
+impl<T> IntoIterator for Vector<T>
+{
+	type Item = T;
+	type IntoIter = slice::Iter<Item>;
+
+	fn into_iter(&self) -> IntoIter
+	{
+		self.as_slice().into_iter()
 	}
 }
