@@ -42,7 +42,7 @@ lto = true
 debug = false
 strip = "debuginfo"
 panic = "abort"
-codegen-units = 6 # 1 for core, 1 for physics, 1 for graphics, 1 for sound, 1 for internals, and 1 misc
+codegen-units = 10 # 2 for core, 2 for physics, 2 for graphics, 2 for sound, and 2 for internals
 
 [lib]
 name = "engine"
