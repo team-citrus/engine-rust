@@ -243,7 +243,7 @@ impl<T> Drop for Vector<T>
 		{
 			for i in self.into_iter()
 			{
-				i.drop
+				drop(i);
 			}
 		}
 	}

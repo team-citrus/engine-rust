@@ -11,16 +11,28 @@
 use std::{ffi::{CString, CStr}, os::raw::c_char, fmt::*};
 
 #[no_mangle]
-extern "C" fn rust_log(string: *const c_char) -> ();
+extern "C" fn rust_log(module: *const c_char, string: *const c_char) -> ();
 
-// Functions exactly like println!
+// Functions exactly like println!, except it takes an extra option prefix arg that specifies the module to log as.
 macro_rules! log
 {
-    ($($arg:tt)*) => {{
-        rust_log(
-            CString::new(
-                fmt::format(format_args_nl!($($arg)*)).as_str()
-            ).unwrap().as_c_str().as_ptr() as *const c_char
-        );
+    ($module::expr, $($arg:tt)*) => {{
+        unsafe
+        {
+            rust_log(
+                format!($module).push('\0').as_ptr() as *const c_char,
+                format!($($arg)*).push('\0').as_ptr() as *const c_char
+            );
+        }
+    }}
+
+    (($($arg:tt)*)) => {{
+        unsafe
+        {
+            rust_log(
+                format!(file!()).push('\0').as_ptr() as &const c_char,
+                format!($($arg)*).push('\0').as_ptr() as *const c_char
+            );
+        }
     }}
 }

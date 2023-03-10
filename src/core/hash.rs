@@ -143,7 +143,7 @@ impl<K, T> HashMap<K, T>
         self.entries[hash(slice::from_ref(i)) % self.entries.len()].a = 0;
         if impls!(T: Drop)
         {
-            self.entries[hash(slice::from_ref(i)) % self.entries.len()].b.drop()
+            drop(self.entries[hash(slice::from_ref(i)) % self.entries.len()].b)
         }
     }
 }
@@ -155,6 +155,6 @@ impl<K, T> Index<K> for Map<K, T>
     #[inline(always)]
     fn index(&self, i: K) -> &self::Output
     {
-        self.entries[hash(slice::from_ref(i)) % self.entries.len()].a = 0;
+        self.entries[hash(slice::from_ref(i)) % self.entries.len()].a
     }
 }
