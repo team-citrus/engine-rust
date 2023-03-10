@@ -8,13 +8,14 @@
 
 use std::{mem::*, iter::*, ops::*, option::*, slice::*};
 use crate::mem::{MemBox, ffi};
+use impls::impls;
 
 // Vec<T> but for the Citrus Engine's box allocator
 pub struct Vector<T>
 {
 	// Suprise! It's additional functionality for MemBox<T>
-	content: MemBox<T>,
-	count: usize,
+	pub(in crate) content: MemBox<T>,
+	pub(in crate) count: usize,
 }
 
 #[macro_export]
@@ -230,6 +231,20 @@ impl<T> Clone for Vector<T>
 		{
 			content: self.content.clone(),
 			count: self.count,
+		}
+	}
+}
+
+impl<T> Drop for Vector<T>
+{
+	fn drop(&mut self)
+	{
+		if impls!(T: Drop)
+		{
+			for i in self.into_iter()
+			{
+				i.drop
+			}
 		}
 	}
 }

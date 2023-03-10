@@ -94,5 +94,22 @@ impl<A, B> Map<A, B>
         None
     }
 
-    // TODO: More stuff.
+    #[inline(always)]
+    fn len(&self)
+    {
+        entries.len()
+    }
+
+    // TODO: More stuff
+}
+
+impl<A, B> Index<usize> for Map<A, B>
+{
+    type Output = Pair<A, B>;
+
+    #[inline(always)]
+    fn index(&self, i: usize) -> &self::Output
+    {
+        *entries[i]
+    }
 }
