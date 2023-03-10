@@ -19,8 +19,8 @@ In providing these Rust bindings, we hope to bring in more use for the Citrus En
   - [ ] Replacements for standard library objects
     - [x] `MemBox<T>`
     - [x] `Vector<T>`
-      - [ ] Add capacity
-    - [ ] `Pair<A, B>`
+      - [x] Add capacity
+    - [x] `Pair<A, B>`
     - [ ] `Map<A, B>`
     - [ ] `HashMap<K, T>`
   - [x] Create Rust component system compatible with the C++ system **<ins>(Highest priority)</ins>**
