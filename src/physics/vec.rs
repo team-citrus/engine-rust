@@ -1,11 +1,13 @@
 /*
 *	name: src/physics/vec.rs
-*	origin: Citrus Engine
-*	purpose: Provide the main engine functions
-*	author: https://github.com/ComradeYellowCitrusFruit
-*	license: LGPL-3.0-only
+*   origin: Citrus Engine
+*   purpose: Provides glm vector types
+*   author: https://github.com/ComradeYellowCitrusFruit
+*   license: LGPL-3.0-only
 */
 
-use glm::*;
+// This differs radically from the C++ version, this just uses Rust reexports
 
-// TODO: stuff
+pub use glm::*;
+pub use glm::ext::*;
+pub use glm::ext::consts::*;
