@@ -17,9 +17,8 @@ In providing these Rust bindings, we hope to bring in more use for the Citrus En
 
 - [ ] Port **core** API
   - [ ] Replacements for standard library objects
-    - [x] `MemBox<T>`
+    - [ ] Get rid of `MemBox<T>` as it has been made redundant
     - [x] `Vector<T>`
-      - [x] Add capacity
     - [x] `Pair<A, B>`
     - [ ] `Map<A, B>`
     - [ ] `HashMap<K, T>`
